@@ -1,0 +1,571 @@
+﻿/* =========================================================
+   Tokens (Figma)
+   ========================================================= */
+:root {
+  --bg: #FFE6B8;
+  --text: #8D007A;
+  --panel: #F5DEFB;
+  --card: #EAEFFB;
+  --dark: #1A0618;
+
+  --font-label: 'Francois One', 'Arial Narrow', sans-serif;
+  --font-mono: 'Fragment Mono', 'Courier New', monospace;
+  --font-round: 'Fredoka One', 'Arial Rounded MT Bold', sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { overflow-x: clip; scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-mono);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: clip;
+}
+
+h1, h2, h3, p, figure { margin: 0; }
+img { display: block; max-width: 100%; height: auto; }
+a { color: inherit; }
+
+/* =========================================================
+   Design unit: 1u = 1/1440 of the page width (capped at 1440).
+   Every size in the Figma file is written as calc(N * var(--u)),
+   so the layout scales uniformly between 1440 and 320.
+   ========================================================= */
+.page {
+  container-type: inline-size;
+  position: relative;
+  overflow: clip;
+  --u: calc(min(100cqw, 1440px) / 1440);
+}
+
+.wrap {
+  position: relative;
+  width: 100%;
+  max-width: 1440px;
+  margin: 0 auto;
+}
+
+.s { position: relative; }
+.s > .wrap > *:not(.deco) { position: relative; z-index: 1; }
+
+/* =========================================================
+   Decor: blurred blobs, rings, sparkles, coin
+   ========================================================= */
+.deco {
+  position: absolute;
+  z-index: 0;
+  pointer-events: none;
+  user-select: none;
+  max-width: none;
+}
+/* Blobs, rings and sparkles are square boxes (Figma node = 1024x1024);
+   width is set per instance, height follows via aspect-ratio. */
+.blob, .ring, .spark {
+  display: block;
+  aspect-ratio: 1;
+}
+
+/* Soft radial blobs: fully transparent by ~70% of the half-size, so no square edge */
+.blob {
+  border-radius: 50%;
+  background: radial-gradient(circle closest-side, var(--c1) 0%, var(--c2) 25%, var(--c3) 50%, var(--c4) 62%, transparent 72%);
+  filter: blur(calc(var(--blur) * var(--u)));
+  opacity: var(--alpha);
+}
+.blob--sage {
+  --alpha: .85;
+  --blur: 8;
+  --c1: rgba(193, 202, 166, 1);
+  --c2: rgba(196, 203, 166, .95);
+  --c3: rgba(205, 208, 170, .55);
+  --c4: rgba(220, 212, 172, .2);
+}
+/* Magenta reads as soft haze, not a saturated spot */
+.blob--magenta {
+  --alpha: .5;
+  --blur: 14;
+  --c1: rgba(188, 38, 129, 1);
+  --c2: rgba(188, 38, 129, .95);
+  --c3: rgba(222, 123, 154, .6);
+  --c4: rgba(242, 183, 168, .2);
+}
+
+/* Thin gold ring: circle diameter 73% of the box, stroke 0.4% of box (min 1px), soft edge */
+.ring {
+  display: grid;
+  place-items: center;
+}
+.ring::before {
+  content: "";
+  width: 73%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  border: max(1px, 0.4cqw) solid #C59214;
+  box-shadow: 0 0 1px #DAB250, inset 0 0 1px #D5AF47;
+  opacity: .9;
+}
+.ring { container-type: inline-size; }
+
+/* Sparkles: 4-point star via <use> */
+.spark { overflow: visible; filter: drop-shadow(0 0 calc(6 * var(--u)) rgba(253, 213, 1, .45)); }
+
+@keyframes float {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50%      { transform: translateY(calc(-10 * var(--u))) rotate(4deg); }
+}
+.float { animation: float 6s ease-in-out infinite; }
+.float--slow { animation-duration: 9s; }
+.float--delay { animation-delay: -3s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .float { animation: none; }
+  html { scroll-behavior: auto; }
+}
+
+/* ---- hero decor ---- */
+.d-hero-mag1   { width: calc(476 * var(--u));  left: calc(-289 * var(--u)); top: calc(-225 * var(--u)); }
+.d-hero-sage6    { width: calc(1018 * var(--u)); left: calc(817 * var(--u));  top: calc(-376 * var(--u)); }
+.d-hero-mag2   { width: calc(879 * var(--u));  left: calc(-471 * var(--u)); top: calc(187 * var(--u)); }
+.d-hero-mag4   { width: calc(1037 * var(--u)); left: calc(889 * var(--u));  top: calc(363 * var(--u)); }
+.d-hero-coin     { width: calc(505 * var(--u));  left: calc(1002 * var(--u)); top: calc(-45 * var(--u)); }
+
+/* ---- intro decor (section starts at y=380 in Figma) ---- */
+.d-intro-mag3   { width: calc(976 * var(--u)); left: calc(-488 * var(--u)); top: calc(664 * var(--u)); }
+
+/* Rings & sparkles around the phone fan live inside .fan (fan top = page y 694),
+   so they stay anchored to the phones and never drift onto paragraphs.
+   Figma coordinates kept; ring5 nudged 63px left so it clears Text2. */
+.d-fan-ring5    { width: calc(283 * var(--u)); left: calc(290 * var(--u));  top: calc(-438 * var(--u)); }
+.d-fan-sparkle1 { width: calc(483 * var(--u)); left: calc(82 * var(--u));   top: calc(-331 * var(--u)); }
+.d-fan-ring6    { width: calc(228 * var(--u)); left: calc(895 * var(--u));  top: calc(-90 * var(--u)); } /* +24px down: clears Text2 */
+.d-fan-ring4    { width: calc(394 * var(--u)); left: calc(-131 * var(--u)); top: calc(139 * var(--u)); }
+.d-fan-sparkle2 { width: calc(346 * var(--u)); left: calc(1129 * var(--u)); top: calc(672 * var(--u)); }
+
+/* ---- story decor (y=1660) ---- */
+.d-story-sage5    { width: calc(1018 * var(--u)); left: calc(969 * var(--u));  top: calc(52 * var(--u)); }
+.d-story-sage4    { width: calc(1018 * var(--u)); left: calc(-336 * var(--u)); top: calc(747 * var(--u)); }
+
+/* Ring & sparkle beside the game cards live inside .games (games top = page y 2167).
+   ring3 nudged 30px left to clear Text3. */
+.d-games-ring3    { width: calc(504 * var(--u)); left: calc(31 * var(--u));  top: calc(-402 * var(--u)); }
+.d-games-sparkle3 { width: calc(346 * var(--u)); left: calc(140 * var(--u)); top: calc(-331 * var(--u)); }
+.d-story-mag5   { width: calc(869 * var(--u));  left: calc(1013 * var(--u)); top: calc(993 * var(--u)); }
+
+/* ---- notice decor (y=3200) ---- */
+.d-notice-sage2 { width: calc(773 * var(--u)); left: calc(1013 * var(--u)); top: calc(-20 * var(--u)); }
+.d-notice-ring2 { width: calc(312 * var(--u)); left: calc(-91 * var(--u));  top: calc(158 * var(--u)); }
+
+/* ---- faq decor (y=3540) ---- */
+.d-faq-sage3 { width: calc(773 * var(--u)); left: calc(-386 * var(--u)); top: calc(195 * var(--u)); }
+.d-faq-ring1 { width: calc(399 * var(--u)); left: calc(1174 * var(--u)); top: calc(425 * var(--u)); }
+
+/* ---- cta decor (y=4440) ---- */
+.d-cta-mag6   { width: calc(869 * var(--u)); left: calc(-323 * var(--u)); top: calc(49 * var(--u)); }
+.d-cta-sage1    { width: calc(661 * var(--u)); left: calc(1109 * var(--u)); top: calc(-12 * var(--u)); }
+.d-cta-sparkle4 { width: calc(346 * var(--u)); left: calc(-30 * var(--u));  top: calc(162 * var(--u)); }
+
+/* =========================================================
+   Typography helpers
+   ========================================================= */
+.t p + p { margin-top: var(--gap, 0); }
+
+/* Body paragraphs: Fragment Mono 32/30 on desktop, never below 13px */
+.t--body {
+  font-size: max(13px, calc(32 * var(--u)));
+  line-height: max(18px, calc(30 * var(--u)));
+  --gap: max(18px, calc(30 * var(--u)));
+}
+
+/* =========================================================
+   HERO: header label + H1
+   ========================================================= */
+.hero .wrap {
+  padding-top: calc(14 * var(--u));
+  padding-left: calc(52 * var(--u));
+  padding-right: calc(52 * var(--u));
+  padding-bottom: calc(55 * var(--u));
+}
+
+.start {
+  display: flex;
+  align-items: center;
+  gap: calc(7 * var(--u));
+  flex-wrap: wrap;
+}
+.start__avatar {
+  flex: none;
+  width: max(40px, calc(93 * var(--u)));
+  height: max(40px, calc(93 * var(--u)));
+  border-radius: 50%;
+  overflow: hidden;
+  background: var(--panel);
+  box-shadow: inset 0 0 0 2px rgba(141, 0, 122, .25);
+}
+.start__avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.start__label {
+  font-family: var(--font-label);
+  font-size: max(20px, calc(54 * var(--u)));
+  line-height: 1;
+  margin-left: calc(7 * var(--u));
+  white-space: nowrap;
+}
+.start__badge {
+  margin-left: calc(18 * var(--u));
+  padding: .35em .8em;
+  border: 1px solid rgba(141, 0, 122, .45);
+  border-radius: 999px;
+  font-size: max(11px, calc(16 * var(--u)));
+  line-height: 1;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  opacity: .85;
+}
+
+.title {
+  margin-top: calc(26 * var(--u));
+  margin-left: calc(14 * var(--u));
+  max-width: calc(1029 * var(--u));
+  font-family: var(--font-mono);
+  font-weight: 400;
+  font-size: max(24px, calc(64 * var(--u)));
+  line-height: 1;
+  text-wrap: balance;
+}
+
+/* =========================================================
+   INTRO: text 2 + phone fan
+   ========================================================= */
+.intro .wrap {
+  padding-top: calc(40 * var(--u));
+  padding-bottom: calc(42 * var(--u));
+}
+
+.text2 {
+  margin-left: calc(594 * var(--u));
+  width: calc(812 * var(--u));
+}
+
+/* Phone fan — 3 iPhone frames, centre upright and in front, sides tilted */
+.fan {
+  position: relative;
+  margin-top: calc(94 * var(--u));
+  height: calc(924 * var(--u));
+}
+.phone {
+  position: absolute;
+  width: var(--pw);
+  aspect-ratio: 759 / 1543;
+  filter: drop-shadow(calc(0 * var(--u)) calc(24 * var(--u)) calc(40 * var(--u)) rgba(70, 0, 60, .45));
+}
+.phone--center {
+  --pw: calc(451 * var(--u));
+  left: calc(50% - 225.5 * var(--u));
+  top: 0;
+  z-index: 3;
+}
+.phone--left {
+  --pw: calc(374 * var(--u));
+  left: calc(50% - 441 * var(--u));
+  top: calc(108 * var(--u));
+  transform: rotate(-17deg);
+  z-index: 2;
+}
+.phone--right {
+  --pw: calc(374 * var(--u));
+  left: calc(50% + 64 * var(--u));
+  top: calc(108 * var(--u));
+  transform: rotate(17deg);
+  z-index: 1;
+}
+.phone__screen {
+  position: absolute;
+  inset: 1.5% 3%;
+  width: 94%;
+  height: 97%;
+  object-fit: fill;
+  border-radius: calc(var(--pw) * 0.09);
+  background: var(--dark);
+}
+.phone__frame {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+.phone__island {
+  position: absolute;
+  top: 3.1%;
+  left: 50%;
+  width: 21.5%;
+  height: 3.1%;
+  transform: translateX(-50%);
+  border-radius: 999px;
+  background: #000;
+}
+.phone__island::after {
+  /* camera lens */
+  content: "";
+  position: absolute;
+  right: 8%;
+  top: 50%;
+  width: calc(var(--pw) * 0.03);
+  height: calc(var(--pw) * 0.03);
+  transform: translateY(-50%);
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 40%, #3b3b6b 0 25%, #1d1d2c 55%, #000 100%);
+}
+
+/* =========================================================
+   STORY: text 3 + game captures
+   ========================================================= */
+.story .wrap {
+  padding-top: calc(79 * var(--u));
+  padding-bottom: calc(50 * var(--u));
+}
+
+.text3 {
+  margin-left: calc(603 * var(--u));
+  width: calc(812 * var(--u));
+}
+
+.games {
+  position: relative;
+  margin-top: calc(158 * var(--u));
+  height: calc(943 * var(--u));
+}
+.game {
+  position: absolute;
+  overflow: hidden;
+  background: var(--text);
+  border: calc(10 * var(--u)) solid var(--text);
+  border-radius: calc(44 * var(--u));
+  box-shadow: 0 calc(18 * var(--u)) calc(36 * var(--u)) rgba(70, 0, 60, .25);
+}
+.game img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: calc(36 * var(--u));
+}
+.game--left   { left: calc(50% - 584 * var(--u)); top: calc(54 * var(--u)); width: calc(450 * var(--u)); height: calc(800 * var(--u)); }
+.game--right  { left: calc(50% + 133 * var(--u)); top: calc(54 * var(--u)); width: calc(450 * var(--u)); height: calc(800 * var(--u)); }
+.game--center { left: calc(50% - 266 * var(--u)); top: 0;                    width: calc(531 * var(--u)); height: calc(943 * var(--u)); z-index: 2; }
+
+.caption {
+  margin-top: calc(34 * var(--u));
+  text-align: center;
+  font-size: max(11px, calc(18 * var(--u)));
+  line-height: 1.4;
+  opacity: .8;
+  padding: 0 20px;
+}
+
+/* =========================================================
+   NOTICE: pink panel
+   ========================================================= */
+.notice .wrap {
+  padding-top: calc(31 * var(--u));
+  padding-bottom: calc(55 * var(--u));
+}
+.panel {
+  margin-left: calc(143 * var(--u));
+  width: calc(1106 * var(--u));
+  min-height: calc(254 * var(--u));
+  padding: calc(37 * var(--u)) calc(62 * var(--u)) calc(37 * var(--u)) calc(94 * var(--u));
+  background: var(--panel);
+  border-radius: calc(28 * var(--u));
+}
+
+/* =========================================================
+   FAQ: section title + 4 cards
+   ========================================================= */
+.faq .wrap {
+  padding-top: calc(66 * var(--u));
+  padding-bottom: calc(61 * var(--u));
+}
+.section-title {
+  margin-left: calc(66 * var(--u));
+  font-family: var(--font-mono);
+  font-weight: 400;
+  font-size: max(22px, calc(50 * var(--u)));
+  line-height: 1;
+}
+
+.cards {
+  margin-top: calc(66 * var(--u));
+  margin-left: calc(143 * var(--u));
+  width: calc(1106 * var(--u));
+  display: flex;
+  flex-direction: column;
+  gap: calc(27 * var(--u));
+}
+.card {
+  display: flex;
+  align-items: flex-start;
+  gap: calc(24 * var(--u));
+  min-height: calc(144 * var(--u));
+  padding: calc(14 * var(--u)) calc(29 * var(--u)) calc(16 * var(--u));
+  background: var(--card);
+  border-radius: calc(26 * var(--u));
+  box-shadow: 0 calc(6 * var(--u)) calc(18 * var(--u)) rgba(141, 0, 122, .08);
+}
+.card--reply {
+  margin-left: calc(121 * var(--u));
+  background: var(--panel);
+}
+.card__icon {
+  flex: none;
+  width: max(40px, calc(99 * var(--u)));
+  height: max(40px, calc(99 * var(--u)));
+  margin-top: calc(8 * var(--u));
+  border-radius: 50%;
+  background: var(--text);
+  color: var(--card);
+  display: grid;
+  place-items: center;
+  font-family: var(--font-round);
+  font-size: max(22px, calc(56 * var(--u)));
+  line-height: 1;
+}
+.card--reply .card__icon { color: var(--panel); }
+.card__icon--photo { overflow: hidden; background: #D9D9D9; }
+.card__icon--photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.card__body { flex: 1 1 auto; min-width: 0; }
+.card__title {
+  font-family: var(--font-round);
+  font-weight: 400;
+  font-size: max(15px, calc(30 * var(--u)));
+  line-height: max(22px, calc(50 * var(--u)));
+}
+.card__text {
+  margin-top: calc(-4 * var(--u));
+  font-size: max(12px, calc(25 * var(--u)));
+  line-height: max(17px, calc(35 * var(--u)));
+}
+.card__text a {
+  text-decoration: underline;
+  text-underline-offset: .15em;
+  text-decoration-thickness: 1px;
+}
+.card__text a:hover,
+.card__text a:focus-visible { text-decoration-thickness: 2px; outline: none; }
+
+/* =========================================================
+   CTA + footer
+   ========================================================= */
+.cta-section .wrap {
+  padding-top: calc(120 * var(--u));
+  padding-bottom: calc(60 * var(--u));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: calc(887 * var(--u));
+  max-width: calc(100% - 40px);
+  min-height: calc(156 * var(--u));
+  padding: .5em 1em;
+  background: var(--panel);
+  border-radius: calc(30 * var(--u));
+  color: var(--text);
+  font-family: var(--font-round);
+  font-size: max(22px, calc(60 * var(--u)));
+  line-height: 1;
+  letter-spacing: .01em;
+  text-align: center;
+  text-decoration: none;
+  box-shadow: 0 calc(10 * var(--u)) calc(30 * var(--u)) rgba(141, 0, 122, .18);
+  transition: transform .25s ease, box-shadow .25s ease, background-color .25s ease;
+}
+.cta:hover,
+.cta:focus-visible {
+  transform: translateY(-3px);
+  background: #fbe8ff;
+  box-shadow: 0 calc(16 * var(--u)) calc(40 * var(--u)) rgba(141, 0, 122, .28);
+  outline: none;
+}
+.cta:focus-visible { box-shadow: 0 0 0 4px var(--bg), 0 0 0 7px var(--text); }
+.cta:active { transform: translateY(0); }
+
+.footer {
+  margin-top: calc(48 * var(--u));
+  padding: 0 20px;
+  text-align: center;
+  font-size: max(11px, calc(18 * var(--u)));
+  line-height: 1.5;
+  opacity: .85;
+}
+.footer a { text-decoration: underline; text-underline-offset: .15em; }
+
+/* =========================================================
+   Mobile (< 700px): the Figma phone frame is a shrunken desktop with
+   unreadable 7–9px text. Keep the composition (fan, cards, decor)
+   scaled, but let text blocks and cards go full width at readable sizes.
+   ========================================================= */
+@media (max-width: 700px) {
+  .hero .wrap { padding-left: 20px; padding-right: 20px; padding-top: 18px; padding-bottom: 22px; }
+  .start { gap: 10px; }
+  .start__label { margin-left: 2px; }
+  .start__badge { margin-left: 0; }
+  .title { margin-left: 0; margin-top: 18px; max-width: none; line-height: 1.08; }
+
+  .t--body { line-height: 1.35; --gap: .9em; }
+
+  .intro .wrap { padding-top: 22px; padding-bottom: 10px; }
+  .text2, .text3 { margin-left: 0; width: auto; padding: 0 20px; }
+  /* Phone fan and game cards use a 1.5x unit on mobile so they stay prominent
+     next to the (now readable, so relatively bigger) text */
+  .fan, .games { --u: calc(min(100cqw, 1440px) / 1440 * 1.25); }
+  .fan { margin-top: 28px; }
+
+  /* On mobile the text blocks above the fan/cards are much taller than in Figma,
+     so decor is pinned to the image zones (never above the fan/cards top edge). */
+  .d-fan-ring5    { top: 2%;  left: 2%;  width: 22%; }
+  .d-fan-sparkle1 { top: -6%; left: -4%; width: 34%; }
+  .d-fan-ring6    { top: 6%;  left: auto; right: -4%; width: 18%; }
+  .d-fan-ring4    { top: 48%; left: -14%; width: 30%; }
+  .d-fan-sparkle2 { top: 70%; left: auto; right: -6%; width: 26%; }
+  .d-games-ring3    { top: 4%;  left: -16%; width: 36%; }
+  .d-games-sparkle3 { top: -4%; left: -6%; width: 26%; }
+
+  /* Notice/FAQ rings: keep clear of the panel and cards */
+  .d-notice-ring2 { top: auto; bottom: -6%; left: -10%; width: 26%; }
+  .d-faq-ring1    { top: auto; bottom: 2%; left: auto; right: -8%; width: 30%; }
+
+  .story .wrap { padding-top: 22px; padding-bottom: 20px; }
+  .games { margin-top: 36px; }
+  .game { border-width: 3px; border-radius: 14px; }
+  .game img { border-radius: 11px; }
+  .caption { margin-top: 18px; }
+
+  .notice .wrap { padding-top: 10px; padding-bottom: 20px; }
+  .panel { margin: 0 20px; width: auto; min-height: 0; padding: 16px 18px; border-radius: 14px; }
+
+  .faq .wrap { padding-top: 22px; padding-bottom: 24px; }
+  .section-title { margin-left: 20px; }
+  .cards { margin: 22px 20px 0; width: auto; gap: 12px; }
+  .card { gap: 12px; min-height: 0; padding: 12px 14px 14px; border-radius: 14px; }
+  .card--reply { margin-left: 22px; }
+  .card__icon { margin-top: 2px; }
+  .card__text { margin-top: 2px; }
+
+  .cta-section .wrap { padding-top: 56px; padding-bottom: 28px; }
+  .cta { min-height: 64px; border-radius: 16px; }
+  .footer { margin-top: 24px; }
+
+  /* Side phones lean a little more on narrow screens so the fan still reads as a fan */
+  .phone { filter: drop-shadow(0 8px 14px rgba(70, 0, 60, .4)); }
+}
+

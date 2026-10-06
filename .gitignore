@@ -1,0 +1,6 @@
+_figma/
+*.rar
+_site/
+Thumbs.db
+desktop.ini
+.DS_Store
